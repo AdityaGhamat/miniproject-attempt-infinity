@@ -21,7 +21,7 @@ class CrudRepository {
     }
     find(args, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            let query = this.model.find(args, null, options).lean();
+            let query = this.model.find(args, null, options);
             if (options === null || options === void 0 ? void 0 : options.populate) {
                 query = query.populate(options.populate);
             }

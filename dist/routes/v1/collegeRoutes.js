@@ -12,5 +12,5 @@ app.get("/:id", collegecontroller_1.default.getDetails);
 app.get("/", auth_1.AuthMiddleware, collegecontroller_1.default.getAllColleges);
 app.patch("/:id", collegecontroller_1.default.updateCollege);
 app.delete("/:id", collegecontroller_1.default.deleteCollege);
-app.get("/:id", collegecontroller_1.default.showCollegeStaff);
+app.get("/staff/:id", collegecontroller_1.default.showCollegeStaff);
 exports.default = app;

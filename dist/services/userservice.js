@@ -22,7 +22,7 @@ const collegeservice_1 = __importDefault(require("./collegeservice"));
 class UserServices {
     signup(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { email, name, password } = data;
+            const { email } = data;
             try {
                 const emailCheck = yield userrepository_1.default.isEmailExists(email);
                 if (emailCheck) {
@@ -71,10 +71,12 @@ class UserServices {
     }
     update_location(user, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const updated_user = yield userrepository_1.default.findByIdAndUpdate(user, data);
+            const updated_user = yield userrepository_1.default.findById(user);
             if (!updated_user) {
-                throw new appError_1.AppError("Failed to update location", statusCodes_1.HttpStatusCode.BAD_REQUEST);
+                throw new appError_1.AppError("User not found", statusCodes_1.HttpStatusCode.NOT_FOUND);
             }
+            updated_user.location = { type: "Point", coordinates: data.coordinates };
+            yield updated_user.save();
             return updated_user;
         });
     }

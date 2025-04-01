@@ -32,8 +32,7 @@ class UserController {
             apiResponse_1.ApiResponse.success(res, { new_session, user }, "User signin successful.");
         }));
         this.updateLocation = (0, asynchandler_1.asyncHandler)((req, res) => __awaiter(this, void 0, void 0, function* () {
-            const user = req.user;
-            const { userId } = user;
+            const { userId } = req.params;
             const data = req.body;
             const response = yield userservice_1.default.update_location(userId, data);
             apiResponse_1.ApiResponse.success(res, response, "updated location");

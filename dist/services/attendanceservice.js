@@ -21,8 +21,36 @@ class AttendanceService {
             const attendanceLogs = yield attendancerepository_1.default.find({
                 college: collegeId,
                 date: { $gte: (0, date_fns_1.startOfDay)(today), $lte: (0, date_fns_1.endOfDay)(today) },
+            }, {
+                populate: ["user", "college"],
             });
             return attendanceLogs;
+        });
+    }
+    viewAttendance(collegeId, filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { fromDate, toDate, staffId, status, minHours, maxHours } = filters;
+            const query = { college: collegeId };
+            if (fromDate && toDate) {
+                query.date = { $gte: new Date(fromDate), $lte: new Date(toDate) };
+            }
+            if (staffId) {
+                query.user = staffId;
+            }
+            if (status === "present") {
+                query.isPresent = true;
+            }
+            else if (status === "absent") {
+                query.isPresent = false;
+            }
+            if (minHours || maxHours) {
+                query.workingHours = {};
+                if (minHours)
+                    query.workingHours.$gte = minHours;
+                if (maxHours)
+                    query.workingHours.$lte = maxHours;
+            }
+            return attendancerepository_1.default.find(query, { populate: ["user", "college"] });
         });
     }
 }

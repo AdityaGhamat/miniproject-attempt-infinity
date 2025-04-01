@@ -37,6 +37,13 @@ const attendanceSchema = new mongoose_1.Schema({
             required: true,
         },
     },
+    currentRoundTime: {
+        type: Date,
+    },
+    workingHours: {
+        type: Date,
+        default: 0,
+    },
 }, {
     timestamps: true,
 });
