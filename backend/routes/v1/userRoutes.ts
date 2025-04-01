@@ -1,0 +1,12 @@
+import { Router } from "express";
+import usercontroller from "../../controllers/usercontroller";
+import { AuthMiddleware } from "../../middlewares/auth";
+const app = Router();
+app.post("/signup", usercontroller.signup);
+app.post("/signin", usercontroller.signIn);
+app.put("/location/:userId", AuthMiddleware, usercontroller.updateLocation);
+app.get("/location", AuthMiddleware, usercontroller.getLocation);
+app.get("/:id", AuthMiddleware, usercontroller.getProfile);
+app.put("/join/:collegeId", AuthMiddleware, usercontroller.joinCollege);
+app.put("/exit-college", AuthMiddleware, usercontroller.exitCollege);
+export default app;
