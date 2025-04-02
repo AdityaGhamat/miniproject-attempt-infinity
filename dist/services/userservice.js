@@ -49,7 +49,7 @@ class UserServices {
         return __awaiter(this, void 0, void 0, function* () {
             const { email, password } = data;
             try {
-                const response = yield userrepository_1.default.findOne(email);
+                const response = yield userrepository_1.default.findOne(email, undefined, "college");
                 if (!response) {
                     throw new appError_1.AppError("User not found", statusCodes_1.HttpStatusCode.NOT_FOUND, errorCodes_1.ErrorCode.NOT_FOUND, true);
                 }
@@ -93,7 +93,7 @@ class UserServices {
     }
     get_profile(user_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield userrepository_1.default.findById(user_id);
+            const user = yield userrepository_1.default.findById(user_id, undefined, undefined, "college");
             if (!user) {
                 throw new appError_1.AppError("User not found", statusCodes_1.HttpStatusCode.NOT_FOUND);
             }

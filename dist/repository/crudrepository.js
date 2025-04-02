@@ -28,15 +28,18 @@ class CrudRepository {
             return query.exec();
         });
     }
-    findOne(args, options) {
+    findOne(args, options, populate) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = typeof args === "string" ? { email: args } : args;
-            return this.model.findOne(query, null, options).exec();
+            return this.model.findOne(query, null, options).populate(populate).exec();
         });
     }
-    findById(id, fields, options) {
+    findById(id, fields, options, populate) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.model.findById(id, fields === null || fields === void 0 ? void 0 : fields.join(" "), options).exec();
+            return this.model
+                .findById(id, fields === null || fields === void 0 ? void 0 : fields.join(" "), options)
+                .populate(populate)
+                .exec();
         });
     }
     findByIdAndUpdate(id, data, options) {
