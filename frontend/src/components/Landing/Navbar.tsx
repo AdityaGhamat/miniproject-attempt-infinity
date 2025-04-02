@@ -12,7 +12,7 @@ const Navbar = () => {
   const handleAuthAction = () => {
     if (isAuthenticated) {
       if (user.college) {
-        navigate(`/college/${user.college}`);
+        navigate(`/college/${user.college._id}`);
       } else {
         navigate("/college");
       }
