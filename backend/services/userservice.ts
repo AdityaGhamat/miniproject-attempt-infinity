@@ -46,7 +46,11 @@ class UserServices {
   async signin(data: Partial<IUser>) {
     const { email, password } = data;
     try {
-      const response = await userrepository.findOne(email!);
+      const response = await userrepository.findOne(
+        email!,
+        undefined,
+        "college"
+      );
       if (!response) {
         throw new AppError(
           "User not found",
@@ -100,7 +104,12 @@ class UserServices {
   }
 
   async get_profile(user_id: any) {
-    const user = await userrepository.findById(user_id);
+    const user = await userrepository.findById(
+      user_id,
+      undefined,
+      undefined,
+      "college"
+    );
     if (!user) {
       throw new AppError("User not found", HttpStatusCode.NOT_FOUND);
     }

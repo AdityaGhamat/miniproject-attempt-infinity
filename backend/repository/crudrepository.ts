@@ -25,18 +25,23 @@ export class CrudRepository<T, K = any> implements ICrudRepository<T, K> {
 
   async findOne(
     args: string | Partial<K>,
-    options?: Record<string, unknown>
+    options?: Record<string, unknown>,
+    populate?: string
   ): Promise<T | null> {
     const query = typeof args === "string" ? { email: args } : args;
-    return this.model.findOne(query, null, options).exec();
+    return this.model.findOne(query, null, options).populate(populate).exec();
   }
 
   async findById(
     id: any,
     fields?: string[],
-    options?: Record<string, unknown>
+    options?: Record<string, unknown>,
+    populate?: string
   ): Promise<T | null> {
-    return this.model.findById(id, fields?.join(" "), options).exec();
+    return this.model
+      .findById(id, fields?.join(" "), options)
+      .populate(populate)
+      .exec();
   }
 
   async findByIdAndUpdate(
