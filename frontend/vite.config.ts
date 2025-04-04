@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: "https://miniproject-attempt-infinity-1.onrender.com",
         changeOrigin: true,
       },
     },
