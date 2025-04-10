@@ -25,6 +25,9 @@ class Server {
   }
   private routes() {
     this.app.use("/api", apiRoutes);
+    this.app.get(/^\/(?!api).*/, (req, res) => {
+      res.sendFile(path.resolve(__dirname, "../frontend/dist/index.html"));
+    });
   }
   private error() {
     this.app.use(errorMiddleware);
