@@ -24,7 +24,7 @@ const Signin = () => {
       return response.data;
     },
     onSuccess: (data: any) => {
-      navigate("/colleges");
+      navigate("/college");
       dispatch(loginSuccess(data.data.user));
       // Redirect after login
     },

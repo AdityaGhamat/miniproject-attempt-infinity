@@ -4,11 +4,11 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
-    "start": "node ./dist/index.js",
-    "dev": "tsx --watch backend/index.ts"
+    "start": "node ./dist/app.js",
+    "dev": "tsx --watch backend/app.ts"
   },
   "keywords": [],
-  "author": "",
+  "author": "aditya ghamat",
   "license": "ISC",
   "description": "",
   "devDependencies": {

@@ -42,7 +42,7 @@ const attendanceSchema = new Schema<IAttendance>(
       type: Date,
     },
     workingHours: {
-      type: Date,
+      type: Number,
       default: 0,
     },
   },

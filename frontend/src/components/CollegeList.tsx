@@ -9,6 +9,7 @@ import {
   RefreshCw,
   AlertCircle,
   Plus,
+  Crosshair,
 } from "lucide-react";
 import {
   Dialog,
@@ -36,6 +37,7 @@ const CollegeList = () => {
     longitude: "",
   });
   const [createError, setCreateError] = useState<any>(null);
+  const [geoLoading, setGeoLoading] = useState(false);
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
@@ -90,6 +92,37 @@ const CollegeList = () => {
   const handleCreateDialogClose = () => {
     setIsCreateDialogOpen(false);
     resetForm();
+  };
+
+  // New function to get current location
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setCreateError("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setGeoLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setNewCollege({
+          ...newCollege,
+          latitude: position.coords.latitude.toString(),
+          longitude: position.coords.longitude.toString(),
+        });
+        setGeoLoading(false);
+      },
+      (err) => {
+        console.error("Error getting location:", err);
+        setCreateError(`Geolocation error: ${err.message}`);
+        setGeoLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+      }
+    );
   };
 
   const handleCreateCollege = async (e: any) => {
@@ -283,16 +316,18 @@ const CollegeList = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="latitude">Latitude</Label>
-                  <Input
-                    id="latitude"
-                    name="latitude"
-                    type="number"
-                    step="any"
-                    value={newCollege.latitude}
-                    onChange={handleInputChange}
-                    placeholder="e.g. 42.3770"
-                    required
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="latitude"
+                      name="latitude"
+                      type="number"
+                      step="any"
+                      value={newCollege.latitude}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 42.3770"
+                      required
+                    />
+                  </div>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="longitude">Longitude</Label>
@@ -308,6 +343,21 @@ const CollegeList = () => {
                   />
                 </div>
               </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={getCurrentLocation}
+                disabled={geoLoading}
+              >
+                <Crosshair
+                  size={16}
+                  className={geoLoading ? "animate-pulse" : ""}
+                />
+                {geoLoading ? "Getting Location..." : "Use My Current Location"}
+              </Button>
+
               {createError && (
                 <div className="text-red-600 text-sm flex items-center gap-1">
                   <AlertCircle size={16} />

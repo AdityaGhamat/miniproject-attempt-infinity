@@ -1,7 +1,5 @@
 import attendancerepository from "../repository/attendancerepository";
 import userrepository from "../repository/userrepository";
-import { AppError } from "../utils/response/appError";
-import { HttpStatusCode } from "../utils/response/statusCodes";
 import collegeservice from "./collegeservice";
 import { startOfDay, endOfDay } from "date-fns";
 
@@ -13,10 +11,8 @@ class AdminService {
     const radiusInMeters = 130;
     const radiusInRadians = radiusInMeters / 6371000;
 
-    // Fetch all staff members
     const staffMembers = await userrepository.find({ college: college_id });
 
-    // Fetch members inside the college radius
     const presentMembers = await userrepository.find({
       college: college_id,
       location: {
@@ -26,15 +22,21 @@ class AdminService {
       },
     });
 
-    const today = new Date();
-    const currentRoundMinutes =
-      Math.floor((today.getHours() * 60 + today.getMinutes()) / 15) * 15;
-    const currentRoundTime = new Date(today.setMinutes(currentRoundMinutes));
+    const now = new Date(); // current UTC time
+
+    // Round to the nearest 15-minute block in UTC
+    const totalUTCMins = now.getUTCHours() * 60 + now.getUTCMinutes();
+    const roundedMinutes = Math.floor(totalUTCMins / 15) * 15;
+    const roundedUTCDate = new Date(now);
+    console.log(roundedUTCDate);
+    const roundedHours = Math.floor(roundedMinutes / 60);
+    const roundedMins = roundedMinutes % 60;
+    roundedUTCDate.setUTCHours(roundedHours, roundedMins, 0, 0);
 
     for (const member of staffMembers) {
       const existingAttendance = await attendancerepository.findOne({
         user: member._id,
-        date: { $gte: startOfDay(today), $lte: endOfDay(today) },
+        date: { $gte: startOfDay(now), $lte: endOfDay(now) },
       });
 
       const isCurrentlyPresent = presentMembers.some((present: any) =>
@@ -43,40 +45,40 @@ class AdminService {
 
       if (existingAttendance) {
         if (isCurrentlyPresent) {
-          // If user is now present, mark as present
           existingAttendance.isPresent = true;
           if (!existingAttendance.checkIn) {
-            existingAttendance.checkIn = new Date();
+            existingAttendance.checkIn = roundedUTCDate;
           }
-          // Reset checkout time if user returns
           existingAttendance.checkOut = null;
         } else {
-          // If user was previously present but is now absent
           if (existingAttendance.isPresent) {
-            const timeDifference =
-              (currentRoundTime.getTime() -
-                existingAttendance.currentRoundTime.getTime()) /
-              1000 /
-              60;
+            const lastUpdate =
+              existingAttendance.currentRoundTime ||
+              existingAttendance.checkIn ||
+              roundedUTCDate;
 
-            existingAttendance.workingHours =
-              (existingAttendance.workingHours?.valueOf() || 0) +
-              timeDifference;
+            if (lastUpdate.getTime() < roundedUTCDate.getTime()) {
+              const timeDifferenceMinutes =
+                (roundedUTCDate.getTime() - lastUpdate.getTime()) / 1000 / 60;
 
-            // Set checkout time
-            existingAttendance.checkOut = currentRoundTime;
+              existingAttendance.workingHours =
+                (existingAttendance.workingHours || 0) + timeDifferenceMinutes;
+
+              existingAttendance.checkOut = roundedUTCDate;
+            }
           }
+
           existingAttendance.isPresent = false;
         }
-        existingAttendance.currentRoundTime = currentRoundTime;
+
+        existingAttendance.currentRoundTime = roundedUTCDate;
         await existingAttendance.save();
       } else {
-        // If no previous record, create a new one
         await attendancerepository.create({
           user: member._id as any,
-          date: today,
-          checkIn: isCurrentlyPresent ? new Date() : undefined, // Ensure checkOut is null at the start
-          currentRoundTime: currentRoundTime,
+          date: now,
+          checkIn: isCurrentlyPresent ? roundedUTCDate : undefined,
+          currentRoundTime: roundedUTCDate,
           college: member.college as any,
           isPresent: isCurrentlyPresent,
           workingHours: 0,
@@ -85,7 +87,10 @@ class AdminService {
                 type: "Point",
                 coordinates: member.location.coordinates,
               }
-            : { type: "Point", coordinates: [0, 0] },
+            : {
+                type: "Point",
+                coordinates: [0, 0],
+              },
         });
       }
     }

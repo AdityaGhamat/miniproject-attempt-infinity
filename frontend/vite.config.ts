@@ -1,9 +1,11 @@
 import { defineConfig } from "vite";
 import path from "path";
-import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
-// https://vite.dev/config/
+// Load .env variables
+const isProduction = process.env.NODE_ENV === "production";
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -15,8 +17,11 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://miniproject-attempt-infinity-1.onrender.com",
+        target: isProduction
+          ? "https://miniproject-attempt-infinity-1.onrender.com"
+          : "http://localhost:5000",
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, "/api"),
       },
     },
   },

@@ -12,5 +12,5 @@ export interface IAttendance extends Document {
     coordinates: [number, number];
   };
   currentRoundTime: Date;
-  workingHours: Number;
+  workingHours: number;
 }

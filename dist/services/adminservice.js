@@ -19,13 +19,10 @@ const date_fns_1 = require("date-fns");
 class AdminService {
     findMembers(college_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a;
             const college_coordinates = yield collegeservice_1.default.getCollegeLocation(college_id);
             const radiusInMeters = 130;
             const radiusInRadians = radiusInMeters / 6371000;
-            // Fetch all staff members
             const staffMembers = yield userrepository_1.default.find({ college: college_id });
-            // Fetch members inside the college radius
             const presentMembers = yield userrepository_1.default.find({
                 college: college_id,
                 location: {
@@ -34,50 +31,52 @@ class AdminService {
                     },
                 },
             });
-            const today = new Date();
-            const currentRoundMinutes = Math.floor((today.getHours() * 60 + today.getMinutes()) / 15) * 15;
-            const currentRoundTime = new Date(today.setMinutes(currentRoundMinutes));
+            const now = new Date(); // current UTC time
+            // Round to the nearest 15-minute block in UTC
+            const totalUTCMins = now.getUTCHours() * 60 + now.getUTCMinutes();
+            const roundedMinutes = Math.floor(totalUTCMins / 15) * 15;
+            const roundedUTCDate = new Date(now);
+            console.log(roundedUTCDate);
+            const roundedHours = Math.floor(roundedMinutes / 60);
+            const roundedMins = roundedMinutes % 60;
+            roundedUTCDate.setUTCHours(roundedHours, roundedMins, 0, 0);
             for (const member of staffMembers) {
                 const existingAttendance = yield attendancerepository_1.default.findOne({
                     user: member._id,
-                    date: { $gte: (0, date_fns_1.startOfDay)(today), $lte: (0, date_fns_1.endOfDay)(today) },
+                    date: { $gte: (0, date_fns_1.startOfDay)(now), $lte: (0, date_fns_1.endOfDay)(now) },
                 });
                 const isCurrentlyPresent = presentMembers.some((present) => present._id.equals(member._id));
                 if (existingAttendance) {
                     if (isCurrentlyPresent) {
-                        // If user is now present, mark as present
                         existingAttendance.isPresent = true;
                         if (!existingAttendance.checkIn) {
-                            existingAttendance.checkIn = new Date();
+                            existingAttendance.checkIn = roundedUTCDate;
                         }
-                        // Reset checkout time if user returns
                         existingAttendance.checkOut = null;
                     }
                     else {
-                        // If user was previously present but is now absent
                         if (existingAttendance.isPresent) {
-                            const timeDifference = (currentRoundTime.getTime() -
-                                existingAttendance.currentRoundTime.getTime()) /
-                                1000 /
-                                60;
-                            existingAttendance.workingHours =
-                                (((_a = existingAttendance.workingHours) === null || _a === void 0 ? void 0 : _a.valueOf()) || 0) +
-                                    timeDifference;
-                            // Set checkout time
-                            existingAttendance.checkOut = currentRoundTime;
+                            const lastUpdate = existingAttendance.currentRoundTime ||
+                                existingAttendance.checkIn ||
+                                roundedUTCDate;
+                            if (lastUpdate.getTime() < roundedUTCDate.getTime()) {
+                                const timeDifferenceMinutes = (roundedUTCDate.getTime() - lastUpdate.getTime()) / 1000 / 60;
+                                existingAttendance.workingHours =
+                                    (existingAttendance.workingHours || 0) + timeDifferenceMinutes;
+                                existingAttendance.checkOut = roundedUTCDate;
+                            }
                         }
                         existingAttendance.isPresent = false;
                     }
-                    existingAttendance.currentRoundTime = currentRoundTime;
+                    existingAttendance.currentRoundTime = roundedUTCDate;
                     yield existingAttendance.save();
                 }
                 else {
-                    // If no previous record, create a new one
                     yield attendancerepository_1.default.create({
                         user: member._id,
-                        date: today,
-                        checkIn: isCurrentlyPresent ? new Date() : undefined, // Ensure checkOut is null at the start
-                        currentRoundTime: currentRoundTime,
+                        date: now,
+                        checkIn: isCurrentlyPresent ? roundedUTCDate : undefined,
+                        currentRoundTime: roundedUTCDate,
                         college: member.college,
                         isPresent: isCurrentlyPresent,
                         workingHours: 0,
@@ -86,7 +85,10 @@ class AdminService {
                                 type: "Point",
                                 coordinates: member.location.coordinates,
                             }
-                            : { type: "Point", coordinates: [0, 0] },
+                            : {
+                                type: "Point",
+                                coordinates: [0, 0],
+                            },
                     });
                 }
             }
