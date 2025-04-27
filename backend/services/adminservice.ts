@@ -28,7 +28,6 @@ class AdminService {
     const totalUTCMins = now.getUTCHours() * 60 + now.getUTCMinutes();
     const roundedMinutes = Math.floor(totalUTCMins / 15) * 15;
     const roundedUTCDate = new Date(now);
-    console.log(roundedUTCDate);
     const roundedHours = Math.floor(roundedMinutes / 60);
     const roundedMins = roundedMinutes % 60;
     roundedUTCDate.setUTCHours(roundedHours, roundedMins, 0, 0);
@@ -51,27 +50,22 @@ class AdminService {
           }
           existingAttendance.checkOut = null;
         } else {
-          if (existingAttendance.isPresent) {
-            const lastUpdate =
-              existingAttendance.currentRoundTime ||
-              existingAttendance.checkIn ||
-              roundedUTCDate;
-
-            if (lastUpdate.getTime() < roundedUTCDate.getTime()) {
-              const timeDifferenceMinutes =
-                (roundedUTCDate.getTime() - lastUpdate.getTime()) / 1000 / 60;
-
-              existingAttendance.workingHours =
-                (existingAttendance.workingHours || 0) + timeDifferenceMinutes;
-
-              existingAttendance.checkOut = roundedUTCDate;
-            }
+          if (existingAttendance.checkIn) {
+            const timeDifferenceMinutes =
+              (roundedUTCDate.getTime() -
+                existingAttendance.checkIn.getTime()) /
+              1000 /
+              60;
+            console.log(timeDifferenceMinutes);
+            existingAttendance.workingHours = timeDifferenceMinutes;
+            existingAttendance.checkOut = roundedUTCDate;
           }
 
           existingAttendance.isPresent = false;
         }
 
         existingAttendance.currentRoundTime = roundedUTCDate;
+
         await existingAttendance.save();
       } else {
         await attendancerepository.create({
@@ -94,7 +88,6 @@ class AdminService {
         });
       }
     }
-
     return presentMembers;
   }
 }

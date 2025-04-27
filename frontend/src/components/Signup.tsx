@@ -26,7 +26,7 @@ const Signup = () => {
     },
     onSuccess: (data) => {
       dispatch(loginSuccess(data.data.user));
-      navigate("/dashboard");
+      navigate("/college");
     },
     onError: (error: any) => {
       console.error(

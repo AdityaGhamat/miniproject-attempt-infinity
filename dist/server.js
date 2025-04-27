@@ -26,6 +26,7 @@ class Server {
         this.middleware();
         this.routes();
         this.error();
+        this.port = Number(serverconfig_1.default.PORT) || 3000;
     }
     middleware() {
         this.app.use((0, cors_1.default)());
@@ -47,7 +48,7 @@ class Server {
         return __awaiter(this, void 0, void 0, function* () {
             yield (0, database_1.connectToDatabase)();
             this.app.listen(serverconfig_1.default.PORT, () => {
-                console.log(`server started , http://localhost:${serverconfig_1.default.PORT}`);
+                console.log(`server started , http://localhost:${this.port}`);
             });
         });
     }

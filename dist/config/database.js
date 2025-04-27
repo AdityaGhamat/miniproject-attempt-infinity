@@ -19,7 +19,8 @@ function connectToDatabase() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             mongoose_1.default
-                .connect(serverconfig_1.default.DATABASE_URL)
+                .connect(serverconfig_1.default.DATABASE_URL ||
+                "mongodb+srv://adityaghamat01:adityaghamat@geolocation.mgxzh0a.mongodb.net/owl")
                 .then(() => console.log(`database connected`))
                 .catch((err) => console.error(err));
         }

@@ -10,11 +10,13 @@ import path from "path";
 
 class Server {
   app: Express;
+  port: Number;
   constructor() {
     this.app = express();
     this.middleware();
     this.routes();
     this.error();
+    this.port = Number(serverconfig.PORT) || 3000;
   }
   private middleware() {
     this.app.use(cors());
@@ -35,7 +37,7 @@ class Server {
   public async start() {
     await connectToDatabase();
     this.app.listen(serverconfig.PORT, () => {
-      console.log(`server started , http://localhost:${serverconfig.PORT}`);
+      console.log(`server started , http://localhost:${this.port}`);
     });
   }
 }
