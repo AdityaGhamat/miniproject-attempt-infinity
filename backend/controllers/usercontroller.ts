@@ -13,6 +13,7 @@ class UserController {
       response._id as string,
       res
     );
+
     ApiResponse.success(
       res,
       { token: new_session, user: response },

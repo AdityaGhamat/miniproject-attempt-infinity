@@ -151,15 +151,15 @@ const AttendanceDashboard = () => {
   };
 
   // Handle manual attendance update
-  const handleUpdateAttendance = async (attendanceId: any, isPresent: any) => {
-    try {
-      await axios.patch(`/api/v1/attendance/${attendanceId}`, { isPresent });
-      fetchAttendanceData(); // Refresh data after update
-    } catch (err) {
-      console.error("Error updating attendance:", err);
-      setError("Failed to update attendance. Please try again.");
-    }
-  };
+  // const handleUpdateAttendance = async (attendanceId: any, isPresent: any) => {
+  //   try {
+  //     await axios.patch(`/api/v1/attendance/${attendanceId}`, { isPresent });
+  //     fetchAttendanceData(); // Refresh data after update
+  //   } catch (err) {
+  //     console.error("Error updating attendance:", err);
+  //     setError("Failed to update attendance. Please try again.");
+  //   }
+  // };
 
   // Handle staff checkout
   const handleCheckout = async (attendanceId: any) => {
@@ -419,9 +419,6 @@ const AttendanceDashboard = () => {
                       Working Hours
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Round Time
                     </th>
                   </tr>
@@ -474,25 +471,6 @@ const AttendanceDashboard = () => {
                         {Number(record.workingHours)
                           ? Number(Number(record.workingHours).toFixed(1))
                           : 0}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() =>
-                              handleUpdateAttendance(
-                                record._id,
-                                !record.isPresent
-                              )
-                            }
-                            className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                              record.isPresent
-                                ? "text-red-700 bg-red-100 hover:bg-red-200"
-                                : "text-green-700 bg-green-100 hover:bg-green-200"
-                            }`}
-                          >
-                            {record.isPresent ? "Mark Absent" : "Mark Present"}
-                          </button>
-                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {record.currentRoundTime ? (
