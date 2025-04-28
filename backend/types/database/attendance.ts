@@ -4,7 +4,7 @@ export interface IAttendance extends Document {
   user: Types.ObjectId;
   college: Types.ObjectId;
   date: Date;
-  checkIn: Date;
+  checkIn: Date | undefined;
   checkOut: Date | null;
   isPresent: boolean;
   location: {

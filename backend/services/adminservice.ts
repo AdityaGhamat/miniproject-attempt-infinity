@@ -57,8 +57,14 @@ class AdminService {
               1000 /
               60;
             console.log(timeDifferenceMinutes);
-            existingAttendance.workingHours = timeDifferenceMinutes;
+
+            // ✨ Important: ACCUMULATE workingHours
+            existingAttendance.workingHours += timeDifferenceMinutes;
+
             existingAttendance.checkOut = roundedUTCDate;
+
+            // After calculating, reset checkIn so that next time when they come again, new checkIn starts
+            existingAttendance.checkIn = undefined;
           }
 
           existingAttendance.isPresent = false;

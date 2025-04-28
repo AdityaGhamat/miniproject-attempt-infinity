@@ -5,7 +5,7 @@ const app = Router();
 
 app.post("/", collegecontroller.create);
 app.get("/:id", collegecontroller.getDetails);
-app.get("/", AuthMiddleware, collegecontroller.getAllColleges);
+app.get("/", collegecontroller.getAllColleges);
 app.patch("/:id", collegecontroller.updateCollege);
 app.delete("/:id", collegecontroller.deleteCollege);
 app.get("/staff/:id", collegecontroller.showCollegeStaff);
